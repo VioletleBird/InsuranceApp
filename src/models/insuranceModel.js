@@ -13,8 +13,9 @@ const insuranceSchema = new mongoose.Schema(
             type: Number,
             required: [true, "Zadejte výši pojištění."]
         },
-        person: {
+        personId: {
             type: [mongoose.Schema.Types.ObjectId],
+            require: [true, "Nelze založit pojištění bez pojištěné osoby."]
         },
     }
 );

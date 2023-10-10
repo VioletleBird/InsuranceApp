@@ -19,7 +19,7 @@ function validateInsurance(insurance, required = true) {
         name:       Joi.string().valid(...nameOfInsurance).max(1),
         subject:    Joi.string(),
         value:      Joi.number(),
-        person:     Joi.string(),
+        personId:   Joi.string(),
     });
 
     return schema.validate(insurance, { presence: (required) ? 'required' : 'optional' });
