@@ -9,24 +9,38 @@ const getAllInsurance = async (req, res) => {
         .catch(error => { res.send('Pojištění se nepodařilo načíst.') });
 };
 
-//get insurence by ID
+//get insurance by ID
 const getInsurance = async (req, res) => {
-    await Insurance.findById(req.params._id)
+    await Insurance.findById(req.params.id)
         .then(result => { res.json(result) })
         .catch(error => { res.send('Pojištění nenalezeno.') });
 };
 
 //make new insurance
 const newInsurance = async (req, res) => {
-    const { error } = validate.validateInsurance(req.body);
+    const { id } = req.params;
+    const { name, subject, value } = req.body;
 
-    if (error) {
-        res.status(400).send(error.details[0].message);
+    try {
+        const person = await Person.findById(id);
+        if (!person) { return res.send('Pojištěnec nenalezen.') };
+
+        const newInsurance = await Insurance.create({ name, subject, value, person: id });
+
+        const { error } = validate.validateInsurance(req.body);
+        if (error) {
+            res.send('Neplatné údaje.');
+            return;
+        };
+
+        person.insurance.push(newInsurance.id);
+        await person.save();
+
+        res.json(newInsurance);
     }
-    else {
-        await Insurance.create(req.body)
-            .then(result => { res.json(result) })
-            .catch(error => { res.send('Nepodařilo se uložit pojištění.') });
+    catch (error) {
+        console.error(error);
+        res.send(error);
     }
 };
 
@@ -34,18 +48,18 @@ const newInsurance = async (req, res) => {
 const editInsurance = async (req, res) => {
     const { error } = validate.validateInsurance(req.body, false);
     if (error) {
-        res.status(400).send(error.details[0].message);
+        res.send('Neplatné údaje.');
+        return;
     }
-    else {
-        await Person.findByIdAndUpdate(req.params._id, req.body, { new: true })
-            .then(result => { res.json(result) })
-            .catch(error => { res.send("Pojištění se nepodařilo uložit.") });
-    }
+
+    await Person.findByIdAndUpdate(req.params.id, req.body, { new: true })
+        .then(result => { res.json(result) })
+        .catch(error => { res.send("Pojištění se nepodařilo uložit.") });
 };
 
 //delete insurance
 const deleteInsurance = (req, res) => {
-    Insurance.findByIdAndDelete(req.params._id)
+    Insurance.findByIdAndDelete(req.params.id)
         .then(result => {
             if (result) {
                 res.json(result)

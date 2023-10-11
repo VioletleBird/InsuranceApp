@@ -16,8 +16,12 @@ const personSchema = new mongoose.Schema(
         },
         address: {
             type: [ String ],
+            required: false,
         },
-        insurance: [mongoose.Schema.Types.ObjectId],
+        insurance: {
+            type: [mongoose.Schema.Types.ObjectId],
+            required: false,
+        }
     }
 );
 

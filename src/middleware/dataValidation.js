@@ -7,7 +7,7 @@ function validatePerson(person, required = true) {
         lastName:   Joi.string().min(2),
         birthDate:  Joi.number(),
         address:    Joi.array().min(1),
-        insurance:  Joi.array(),
+        insurance:  Joi.array()
     });
 
     return schema.validate(person, { presence: (required) ? 'required' : 'optional' })
@@ -18,8 +18,7 @@ function validateInsurance(insurance, required = true) {
     const schema = Joi.object({
         name:       Joi.string().valid(...nameOfInsurance).max(1),
         subject:    Joi.string(),
-        value:      Joi.number(),
-        personId:   Joi.string(),
+        value:      Joi.number()
     });
 
     return schema.validate(insurance, { presence: (required) ? 'required' : 'optional' });

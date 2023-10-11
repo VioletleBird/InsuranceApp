@@ -24,11 +24,11 @@ router.route('/pojistenci')
 router.route('/pojistenci/:id')
     .get(getPerson)
     .put(editPerson)
-    .delete(deletePerson);
+    .delete(deletePerson)
+    .post(newInsurance);
 
 router.route('/pojisteni')
     .get(getAllInsurance)
-    .post(newInsurance);
 
 router.route('/pojisteni/:id')
     .get(getInsurance)

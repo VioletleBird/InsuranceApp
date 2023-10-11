@@ -11,17 +11,24 @@ const getAllPersons = async (req, res) => {
 
 //get person by ID
 const getPerson = async (req, res) => {
-    await Person.findById(req.params.id)
-        .then(result => { res.json(result) })
-        .catch(error => { res.send('Osoba nenalezena.') });
+    await getById(req.params.id)
+        .then(person => {
+            if (person) {
+                res.json(person)
+            }
+            else { 
+                res.status(404).send('Osoba nenalezena.')
+            }
+        })
+        .catch(error => { res.status(400).res.send('Chyba požadavku GET.') });
 };
 
 //make new person
 const newPerson = async (req, res) => {
     const { error } = validate.validatePerson(req.body);
-
     if (error) {
         res.status(400).send(error.details[0].message);
+        return
     }
     else {
         await Person.create(req.body)
@@ -34,7 +41,8 @@ const newPerson = async (req, res) => {
 const editPerson = async (req, res) => {
     const { error } = validate.validatePerson(req.body, false);
     if (error) {
-        res.status(400).send(error.details[0].message);
+        res.status(400).send('Neplatné údaje.');
+        return
     }
     else {
         await Person.findByIdAndUpdate(req.params.id, req.body, { new: true })
@@ -44,20 +52,34 @@ const editPerson = async (req, res) => {
 };
 
 //delete person
-const deletePerson = (req, res) => {
-    Insurance.find({ people: req.params.id }).countDocuments()
-        .then(count => {
-            if (count != 0) {
-                res.status(400).send("Nelze smazat osobu, která má platné pojištění.")
-            }
-            else {
-                Person.findByIdAndDelete(req.params.id)
-                    .then(result => { res.json(result) })
-                    .catch(error => { res.send('Osobu se nepodařilo smazat.') });
-            }
-        })
-        .catch(error => { res.status(400).send('Osobu se nepodařilo smazat.') });
+const deletePerson = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const person = await Person.findById(id);
+        if (!person) { return res.send('Pojištěnec nenalezen') };
+
+        const insuranceIds = person.insurance;
+
+        await person.deleteOne({ _id: person.id });
+        await Insurance.deleteMany({ _id: { $in: insuranceIds } });
+
+        res.send('Pojištěnec smazán.')
+    }
+    catch (error) {
+        res.status(500).send('Internal error.')
+    };
 };
+
+async function getById(id) {
+    let person = await Person.findById(id);
+    if (person) {
+        person = person.toJSON();
+        let insurances = await Person.find().where("_id").in(person.insurance).select("_id name");
+        person.insurance = JSON.parse(JSON.stringify(insurances));
+    }
+    return person;
+}
 
 module.exports = { 
     getAllPersons,
