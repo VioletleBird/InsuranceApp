@@ -51,10 +51,11 @@ const editInsurance = async (req, res) => {
         res.send('Neplatné údaje.');
         return;
     }
-
-    await Person.findByIdAndUpdate(req.params.id, req.body, { new: true })
-        .then(result => { res.json(result) })
-        .catch(error => { res.send("Pojištění se nepodařilo uložit.") });
+    else {
+        await Insurance.findByIdAndUpdate(req.params.id, req.body, {new: true})
+            .then(result => { res.json(result) })
+            .catch(error => { res.send("Pojištění se nepodařilo uložit.") });
+    }   
 };
 
 //delete insurance

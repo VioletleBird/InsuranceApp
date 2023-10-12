@@ -42,7 +42,7 @@ const editPerson = async (req, res) => {
     const { error } = validate.validatePerson(req.body, false);
     if (error) {
         res.status(400).send('Neplatné údaje.');
-        return
+        return;
     }
     else {
         await Person.findByIdAndUpdate(req.params.id, req.body, { new: true })

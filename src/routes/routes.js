@@ -17,22 +17,42 @@ const {
     deleteInsurance
 } = require('../controllers/insuranceController.js');
 
+const {
+    newUser,
+    getUser,
+    loginUser,
+    logoutUser
+} = require('../controllers/userController.js')
+
+const { 
+    requireAuthHandler,
+    requireAdminHandlers
+ } = require('./routesHandlers.js');
+
 router.route('/pojistenci')
     .get(getAllPersons)
-    .post(newPerson);
+    .post(...requireAdminHandlers, newPerson);
 
 router.route('/pojistenci/:id')
     .get(getPerson)
-    .put(editPerson)
-    .delete(deletePerson)
-    .post(newInsurance);
+    .put(...requireAdminHandlers, editPerson)
+    .delete(...requireAdminHandlers, deletePerson)
+    .post(...requireAdminHandlers, newInsurance);
 
 router.route('/pojisteni')
     .get(getAllInsurance)
 
 router.route('/pojisteni/:id')
     .get(getInsurance)
-    .put(editInsurance)
-    .delete(deleteInsurance);
+    .put(...requireAdminHandlers, editInsurance)
+    .delete(...requireAdminHandlers, deleteInsurance);
+
+router.route('/user')
+    .get(requireAuthHandler, getUser)
+    .post(newUser);
+
+router.route('/login')
+    .post(loginUser)
+    .delete(logoutUser);
 
 module.exports = router;
