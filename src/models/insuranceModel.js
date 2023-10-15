@@ -14,6 +14,21 @@ const insuranceSchema = new mongoose.Schema(
             type: Number,
             required: [true, "Zadejte výši pojištění."]
         },
+        fromDate: {
+            type: Date,
+        },
+        toDate: {
+            type: Date,
+        },
+        risks: {
+            type: String,
+        },
+        events: {
+            type: String,
+        },
+        notes: {
+            type: String,
+        },
         person: {
             type: mongoose.Schema.Types.ObjectId,
             required: [true, 'Osoba je povinná.'],

@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const router = express.Router();
 
 const {
@@ -27,7 +28,12 @@ const {
 const { 
     requireAuthHandler,
     requireAdminHandlers
- } = require('./routesHandlers.js');
+} = require('./routesHandlers.js');
+
+router.route('/')
+    .get((req, res) => {
+        res.sendFile(path.join(__dirname, 'src/public/index.html'))
+    });
 
 router.route('/pojistenci')
     .get(getAllPersons)

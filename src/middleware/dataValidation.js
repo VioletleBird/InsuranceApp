@@ -32,7 +32,7 @@ const nameOfInsurance = [
     'havarijní pojištění',
     'cestovní pojištění',
     'úrazové pojištění',
-    'pojištění odpovědnosti'
+    'životní pojištění'
 ];
 
 module.exports = { 

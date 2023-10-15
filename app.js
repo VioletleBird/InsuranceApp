@@ -1,12 +1,15 @@
 const API_PORT = 8080;
 const mongoose = require('mongoose');
 const express = require('express');
+const path = require('path');
 const expressSession = require('express-session');
 const app = express();
 
 const routes = require('./src/routes/routes.js');
 const sessionKey = require('./src/config/config.js')
 
+app.use(express.static(path.join(__dirname, 'src/public')));
+app.use('/views', express.static(path.join(__dirname, './src/views')))
 app.use(express.json());
 app.use(expressSession({
     secret: `${sessionKey}`,
