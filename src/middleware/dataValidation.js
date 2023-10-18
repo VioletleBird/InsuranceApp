@@ -3,25 +3,33 @@ const Joi = require('joi');
 //person data validation
 function validatePerson(person, required = true) {
     const schema = Joi.object({
-        name:       Joi.string().min(2),
+        firstName:  Joi.string().min(2),
         lastName:   Joi.string().min(2),
-        birthDate:  Joi.number(),
+        birthDate:  Joi.string(),
         address:    Joi.array().min(1),
-        insurance:  Joi.array()
+        email:      Joi.string(),
+        mobile:     Joi.string(),
+        insurances:  Joi.array()
     });
 
-    return schema.validate(person, { presence: (required) ? 'required' : 'optional' })
+    return schema.validate(person);
 };
 
 //insurance data validation
 function validateInsurance(insurance, required = true) {
     const schema = Joi.object({
-        name:       Joi.string().valid(...nameOfInsurance).max(1),
+        insType:    Joi.string().valid(...nameOfInsurance),
         subject:    Joi.string(),
-        value:      Joi.number()
+        insValue:   Joi.number(),
+        fromDate:   Joi.string(),
+        toDate:     Joi.string(),
+        risks:      Joi.string(),
+        events:     Joi.string(),
+        notes:      Joi.string(),
+        personId:   Joi.string()
     });
 
-    return schema.validate(insurance, { presence: (required) ? 'required' : 'optional' });
+    return schema.validate(insurance);
 };
 
 const nameOfInsurance = [

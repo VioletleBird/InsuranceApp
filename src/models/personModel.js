@@ -2,33 +2,40 @@ const mongoose = require('mongoose');
 
 const personSchema = new mongoose.Schema(
     {
-        name: {
+        firstName: {
             type: String,
             required: [true, "Zadejte Vaše křestní jméno."],
+            ref: 'firstName'
         },
         lastName: {
             type: String,
             required: [true, "Zadejte Vaše příjmení."],
+            ref: 'lastName'
         },
         birthDate: {
-            type: Number,
+            type: String,
             required: [true, "Zadejte Vaše datum narození."],
+            ref: 'birthDate'
         },
         address: {
             type: [ String ],
             required: false,
+            ref: 'address'
         },
         email: {
             type: String,
             required: false,
+            ref: 'email'
         },
         phone: {
             type: String,
             required: false,
+            ref: 'phone'
         },
-        insurance: {
+        insurances: {
             type: [mongoose.Schema.Types.ObjectId],
             required: false,
+            res: 'insurances'
         }
     }
 );

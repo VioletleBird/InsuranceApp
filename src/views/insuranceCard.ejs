@@ -1,0 +1,26 @@
+<div class="card">
+    <div class="card-insurance">
+        <div class="card-info">
+            <h4><%= insurance.personId[0].firstName %> <%= insurance.personId[0].lastName %></h4>
+            <p><%= insurance.personId[0].birthDate %></p>
+        </div>
+        <button class="btns btn-submit btn-person-detail" value="<%= insurance.personId[0]._id %>">detail pojištěnce</button>
+    </div>
+
+    <h3><%= insurance.insType %></h3>
+    <div class="card-details">
+        <p><b>Hodnota pojistky: </b><%= insurance.insValue %> Kč</p>
+        <p><b>Objekt pojištění: </b><%= insurance.subject %></p>
+        <p><b>Platnost od: </b><td><%= insurance.fromDate ? insurance.fromDate.toLocaleDateString() : '' %></td>
+            <b>do: </b><td><%= insurance.toDate ? insurance.toDate.toLocaleDateString() : '' %></td></p>
+        <p><b>Rizika: </b><%= insurance.risks %></p>
+        <p><b>Pojistné události: </b><%= insurance.events %></p>
+        <br>
+        <p><b>Poznámky: </b><%= insurance.notes %></p>
+    </div>
+
+    <div class="card-btns">
+        <button class="btns btn-edit btn-insurance-edit" value="<%= insurance._id %>">Upravit</button>
+        <button class="btns btn-delete btn-insurance-delete" value="<%= insurance._id %>">Smazat</button>
+    </div>
+</div>

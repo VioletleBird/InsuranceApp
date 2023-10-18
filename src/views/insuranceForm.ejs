@@ -1,0 +1,41 @@
+<h2>Nové pojištění</h2>
+<form class="add-new-contract action="">
+    <div class="inputs form-row">
+        <label for="insType">Druh pojištění</label>
+        <select id="insType" name="insType">
+            <option value="nemovitost">pojištění nemovitosti</option>
+            <option value="domacnost">pojištění domácnosti</option>
+            <option value="odpovednost">pojištění odpovědnosti</option>
+            <option value="povinne">povinné ručení</option>
+            <option value="havarijni">havarijní pojištění</option>
+            <option value="cestovni">cestovní pojištění</option>
+            <option value="urazove">úrazové pojištění</option>
+            <option value="zivotni">pojištění odpovědnosti</option>
+        </select>
+    </div>
+    <div class="inputs">
+        <label for="insValue">Částka</label>
+        <input type="text" id="insValue" name="insValue">
+    </div>
+    <div class="inputs">
+        <label for="subject">Předmět</label>
+        <input type="text" id="subject" name="subject">
+    </div>
+    <div class="inputs">
+        <label for="fromDate">Platnost od</label>
+        <input type="date" id="fromDate" name="fromDate">
+    </div>
+    <div class="inputs">
+        <label for="toDate">Platnost do</label>
+        <input type="date" id="toDate" name="toDate">
+    </div>
+    <div class="inputs form-row">
+        <label for="risks">Rizika</label>
+        <input type="text" id="risks" name="risks" class="input-wide">
+    </div>
+    <div class="inputs form-row">
+        <label for="notes">Poznámka</label>
+        <input type="text" id="notes" name="notes" class="input-wide">
+    </div>
+    <button class="btns btn-submit btn-insurance-new" value="<%= id %>">Uložit</button>
+</form>

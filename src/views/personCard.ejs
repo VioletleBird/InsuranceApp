@@ -1,0 +1,47 @@
+<div class="card">
+    <div class="card-header">
+        <img class="profile-pic" src="./public/no_profile.jpg" alt="profile picture">
+        <div class="card-info">
+            <h3><%= person.firstName %> <%= person.lastName %></h3>
+            <h4>nar. <%= person.birthDate %></h4>
+            <div class="card-contact">
+                <p><b>adresa </b><%= person.address.join(' ') %></p>
+                <p><b>email </b><%= person.email %></p>
+                <p><b>telefon </b><%= person.phone %></p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card-btns">
+    <button class="btns btn-edit btn-person-edit" value="<%= person._id %>">Upravit</button>
+    <button class="btns btn-delete btn-person-delete" value="<%= person._id %>">Smazat</button>
+</div>
+
+<h3>Sjednané pojištění</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Pojištění</th>
+            <th>Částka</th>
+            <th>Předmět</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <% person.insurances.forEach(ins => { %>
+            <tr>
+                <td><%= ins.insType %></td>
+                <td><%= ins.insValue %> Kč</td>
+                <td><%= ins.fromDate ? ins.fromDate.toLocalDateString() : '' %></td>
+                <td>
+                    <button class="btns btn-detail-sm btn-insurance-detail" value="<%= ins._id %>">detail</button>
+                </td>
+            </tr>
+        <% }) %>
+
+    </tbody>
+</table>
+<div class="btn-center">
+    <button class="btns btn-add btn-insurance-form" value="<%= person._id %>">Přidat pojištění</button>
+</div>

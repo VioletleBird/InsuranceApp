@@ -86,6 +86,11 @@ h3 {
     width: 10rem;
 }
 
+.btn-detail-sm {
+    background-color: var(--clr-primary-2);
+    color: var(--clr-white);
+}
+
 .btn-add {
     background-color: var(--btn-clr-add);
     color: var(--clr-primary-1);
@@ -101,15 +106,15 @@ h3 {
     color: var(--clr-primary-1)
 }
 
-.btn-edit-sm, .btn-delete-sm {
+.btn-edit-sm, .btn-delete-sm, .btn-detail-sm {
     padding: 0.25rem 0.5rem;
     font-size: 0.9rem;
     width: 4rem;
 }
 
 .spinner svg {
-    height: 6rem;
-    width: 6rem;
+    height: 3rem;
+    width: 3rem;
     animation: rotate 2s infinite linear;
 }
 
@@ -387,6 +392,7 @@ table thead tr th:nth-child(4) {
 @media screen and (min-width: 900px) {
     .card-insurance {
         flex-direction: row;
+        gap: 7rem;
     }
 
     .card-insurance button {

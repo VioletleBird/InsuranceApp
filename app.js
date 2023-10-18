@@ -8,8 +8,9 @@ const app = express();
 const routes = require('./src/routes/routes.js');
 const sessionKey = require('./src/config/config.js')
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'src/views'));
 app.use(express.static(path.join(__dirname, 'src/public')));
-app.use('/views', express.static(path.join(__dirname, './src/views')))
 app.use(express.json());
 app.use(expressSession({
     secret: `${sessionKey}`,

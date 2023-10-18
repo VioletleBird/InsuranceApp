@@ -1,0 +1,29 @@
+<div class="people">
+    <h2>Sjednaná pojištění</h2>
+    <div class="table-center">
+        <table>
+            <thead>
+                <tr>
+                    <th>Druh</th>
+                    <th>Částka</th>
+                    <th>Platnost od</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <% insurance.forEach(insurance => { %>
+                    <tr>
+                        <td><%= insurance.insType %></td>
+                        <td><%= insurance.insValue %> Kč</td>
+                        <td><%= insurance.fromDate ? insurance.fromDate.toLocaleDateString() : '' %></td>
+                        <td>
+                            <button class="btns btn-detail-sm btn-insurance-detail" value="<%= insurance._id %>">detail</button>
+                        </td>
+                    </tr>
+                <% }); %>
+
+            </tbody>
+        </table>
+    </div>
+</div>

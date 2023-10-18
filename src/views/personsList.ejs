@@ -1,0 +1,30 @@
+<div class="people">
+    <h2>Pojištěnci</h2>
+    <div class="table-center">
+        <div class="btn-center">
+            <button class="btns btn-add btn-person-form">Přidat pojištěnce</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Jméno</th>
+                    <th>Datum narození</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <% person.forEach(person => { %>
+                    <tr>
+                        <td><%= person.firstName %> <%= person.lastName %></td>
+                        <td><%= person.birthDate %></td>
+                        <td>
+                            <button class="btns btn-detail-sm btn-person-detail" value="<%= person._id %>">detail</button>
+                        </td>
+                    </tr>
+                <% }); %>
+
+            </tbody>
+        </table>
+    </div>
+</div>

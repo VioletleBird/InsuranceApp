@@ -22,7 +22,7 @@ function validateUser(data) {
         password:   Joi.string().min(6)
     });
 
-    return schema.validate(data, {presence: "required"});
+    return schema.validate(data);
 };
 
 function validateLogin(data) {
@@ -31,7 +31,7 @@ function validateLogin(data) {
         password:   Joi.string()
     });
 
-    return schema.validate(data, {presence: "required"});
+    return schema.validate(data);
 }
 
 module.exports = { 

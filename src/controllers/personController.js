@@ -5,22 +5,24 @@ const validate = require('../middleware/dataValidation');
 //get all persons
 const getAllPersons = async (req, res) => {
     await Person.find()
-        .then(persons => { res.json(persons) })
+        .then(data => { 
+            res.render('personsList', { person: data });
+        })
         .catch(error => { res.send('Pojištěnce se nepodařilo načíst.') });
 };
 
 //get person by ID
 const getPerson = async (req, res) => {
-    await getById(req.params.id)
-        .then(person => {
-            if (person) {
-                res.json(person)
-            }
-            else { 
-                res.status(404).send('Osoba nenalezena.')
-            }
-        })
-        .catch(error => { res.status(400).res.send('Chyba požadavku GET.') });
+    try {
+        const person = await getById(req.params.id);
+        if (person) {
+            res.render('personCard', { person })
+        } else { 
+            res.status(404).send('Pojištěnec nenalezeno.')
+        }
+    } catch (error) {
+        res.status(400).send('Chyba požadavku GET.')
+    };
 };
 
 //make new person
@@ -72,14 +74,18 @@ const deletePerson = async (req, res) => {
 };
 
 async function getById(id) {
-    let person = await Person.findById(id);
-    if (person) {
-        person = person.toJSON();
-        let insurances = await Person.find().where("_id").in(person.insurance).select("_id name");
-        person.insurance = JSON.parse(JSON.stringify(insurances));
+    try {
+        let person = await Person.findById(id);
+        if (person) {
+            person = person.toJSON();
+            let insurances = await Insurance.find().where("_id").in(person.insurances).select("_id insType insValue subject");
+            person.insurances = JSON.parse(JSON.stringify(insurances));
+        }
+        return person; 
+    } catch (error) {
+        throw error;
     }
-    return person;
-}
+};
 
 module.exports = { 
     getAllPersons,
