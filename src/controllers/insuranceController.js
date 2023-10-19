@@ -25,32 +25,41 @@ const getInsurance = async (req, res) => {
     };
 };
 
+const getInsuranceForm = async (req, res) => {
+    const { id } = req.params.id;
+    res.render('insuranceForm', { id })
+};
+
 //make new insurance
 const newInsurance = async (req, res) => {
     const { id } = req.params;
+    console.log(req.body);
+    console.log(id);
     const { insType, subject, insValue, fromDate, toDate, risks, notes } = req.body;
 
     try {
         const person = await Person.findById(id);
-        if (!person) { return res.send('Pojištěnec nenalezen.') };
+        if (!person) { 
+            return res.status(404).send('Pojištěnec nenalezen.'); 
+        }
+        console.log(person);
+
+        const { error } = validate.validateInsurance(req.body);
+        if (error) {
+            return res.status(400).send('Neplatné údaje.');
+        };
 
         const newInsurance = await Insurance.create({ 
             insType, subject, insValue, fromDate, toDate, risks, notes, personId: id 
         });
-
-        const { error } = validate.validateInsurance(req.body);
-        if (error) {
-            res.send('Neplatné údaje.');
-            return;
-        };
-
+        console.log(newInsurance);
         person.insurances.push(newInsurance._id);
         await person.save();
-
-        res.render('insuranceCard', { insurance: newInsurance });
+        
+        res.json(newInsurance);
     } catch (error) {
+        res.status(500).send(error);
         console.error(error);
-        res.send(error);
     }
 };
 
@@ -72,14 +81,16 @@ const editInsurance = async (req, res) => {
 const deleteInsurance = async (req, res) => {
     const { id } = req.params;
     try {
-        await Insurance.findByIdAndDelete(id);
-        if (!res.ok) {
-            res.status(404).send('Pojištění se nepodařilo smazat.')
-        } else {
-            const insurances = await Insurance.find();
-            res.render('insuranceList', { insurance: insurances });
-        }
-    } catch (error) {
+        const insurance = await Insurance.findById(id);
+        if (!insurance) {
+            return res.status(404).send('Pojištění nenalezeno') 
+        };   
+        await insurance.deleteOne({ _id: insurance.id });
+
+        const insurances = await Insurance.find();
+        res.render('insuranceList', { insurance: insurances });
+    } 
+    catch (error) {
         res.status(400).send('Chyba na straně serveru.')
     }
 };
@@ -101,6 +112,7 @@ async function getById(id) {
 module.exports = {
     getAllInsurance,
     getInsurance,
+    getInsuranceForm,
     newInsurance,
     editInsurance,
     deleteInsurance,

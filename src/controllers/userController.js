@@ -85,7 +85,6 @@ const logoutUser = async (req, res) => {
 module.exports = {
     getUser,
     newUser,
-    getLoginForm,
     loginUser,
     logoutUser
 };

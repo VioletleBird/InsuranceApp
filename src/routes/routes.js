@@ -1,3 +1,4 @@
+const express = require('express');
 const router = express.Router();
 
 const {
@@ -11,6 +12,7 @@ const {
 const {
     getAllInsurance,
     getInsurance,
+    getInsuranceForm,
     newInsurance,
     editInsurance,
     deleteInsurance
@@ -36,24 +38,25 @@ router.route('/pojistenci')
 
 router.route('/pojistenci/novy')
     .get((req, res) => { res.render('personForm')})
-    .post(...requireAdminHandlers, newPerson);
+    .post(newPerson);
+    //...requireAdminHandlers
 
 router.route('/pojistenci/:id')
     .get(getPerson)
-    .put(...requireAdminHandlers, editPerson)
-    .delete(...requireAdminHandlers, deletePerson)
+    .put(editPerson)
+    .delete(deletePerson)
 
 router.route('/pojisteni')
     .get(getAllInsurance);
 
 router.route('/pojistenci/:id/nove-pojisteni')
-    .get((req, res) => { res.render('personForm') })
-    .post(...requireAdminHandlers, newInsurance);
+    .get(getInsuranceForm)
+    .post(newInsurance);
 
 router.route('/pojisteni/:id')
     .get(getInsurance)
-    .put(...requireAdminHandlers, editInsurance)
-    .delete(...requireAdminHandlers, deleteInsurance);
+    .put(editInsurance)
+    .delete(deleteInsurance);
 
 router.route('/user')
     .get(requireAuthHandler, getUser)

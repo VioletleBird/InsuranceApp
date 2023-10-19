@@ -1,6 +1,7 @@
 const API_PORT = 8080;
 const mongoose = require('mongoose');
 const express = require('express');
+const bodyParser = require('body-parser');
 const path = require('path');
 const expressSession = require('express-session');
 const app = express();
@@ -11,7 +12,8 @@ const sessionKey = require('./src/config/config.js')
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src/views'));
 app.use(express.static(path.join(__dirname, 'src/public')));
-app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressSession({
     secret: `${sessionKey}`,
     resave: false,

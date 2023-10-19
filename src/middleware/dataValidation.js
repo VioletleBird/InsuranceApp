@@ -1,22 +1,22 @@
 const Joi = require('joi');
 
 //person data validation
-function validatePerson(person, required = true) {
+function validatePerson(person) {
     const schema = Joi.object({
         firstName:  Joi.string().min(2),
         lastName:   Joi.string().min(2),
-        birthDate:  Joi.string(),
-        address:    Joi.array().min(1),
+        birthDate:  Joi.date(),
+        address:    Joi.array(),
         email:      Joi.string(),
         mobile:     Joi.string(),
-        insurances:  Joi.array()
+        insurances: Joi.array()
     });
 
     return schema.validate(person);
 };
 
 //insurance data validation
-function validateInsurance(insurance, required = true) {
+function validateInsurance(insurance) {
     const schema = Joi.object({
         insType:    Joi.string().valid(...nameOfInsurance),
         subject:    Joi.string(),

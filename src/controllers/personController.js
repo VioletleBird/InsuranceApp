@@ -3,8 +3,8 @@ const Insurance = require('../models/insuranceModel');
 const validate = require('../middleware/dataValidation');
 
 //get all persons
-const getAllPersons = async (req, res) => {
-    await Person.find()
+const getAllPersons = (req, res) => {
+    Person.find()
         .then(data => { 
             res.render('personsList', { person: data });
         })
@@ -18,36 +18,38 @@ const getPerson = async (req, res) => {
         if (person) {
             res.render('personCard', { person })
         } else { 
-            res.status(404).send('Pojištěnec nenalezeno.')
+            res.send('Pojištěnec nenalezen.')
         }
     } catch (error) {
-        res.status(400).send('Chyba požadavku GET.')
+        res.send('Chyba požadavku GET.')
     };
 };
 
 //make new person
-const newPerson = async (req, res) => {
+const newPerson = (req, res) => {
     const { error } = validate.validatePerson(req.body);
     if (error) {
-        res.status(400).send(error.details[0].message);
-        return
-    }
-    else {
-        await Person.create(req.body)
-            .then(result => { res.json(result) })
-            .catch(error => { res.send('Nepodařilo se uložit osobu.') });
+        return res.status(400).send(error.details[0].message);
+    } else {
+        Person.create(req.body)
+            .then(result => {
+                res.json(result);
+            })
+            .catch(error => {
+                res.status(500).send('Chyba při ukládání pojištěnce.');
+            });
     }
 };
 
 //edit person
-const editPerson = async (req, res) => {
+const editPerson = (req, res) => {
     const { error } = validate.validatePerson(req.body, false);
     if (error) {
         res.status(400).send('Neplatné údaje.');
         return;
     }
     else {
-        await Person.findByIdAndUpdate(req.params.id, req.body, { new: true })
+        Person.findByIdAndUpdate(req.params.id, req.body, { new: true })
             .then(result => { res.json(result) })
             .catch(error => { res.send("Osobu se nepodařilo uložit.") });
     }
@@ -59,14 +61,15 @@ const deletePerson = async (req, res) => {
 
     try {
         const person = await Person.findById(id);
-        if (!person) { return res.send('Pojištěnec nenalezen') };
+        if (!person) { return res.status(404).send('Pojištěnec nenalezen') };
 
-        const insuranceIds = person.insurance;
+        const insuranceIds = person.insurances;
 
-        await person.deleteOne({ _id: person.id });
-        await Insurance.deleteMany({ _id: { $in: insuranceIds } });
+        person.deleteOne({ _id: person.id });
+        Insurance.deleteMany({ _id: { $in: insuranceIds } });
 
-        res.send('Pojištěnec smazán.')
+        const persons = await Person.find();
+        res.render('personsList', { person: persons });
     }
     catch (error) {
         res.status(500).send('Internal error.')

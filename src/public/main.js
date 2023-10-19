@@ -188,8 +188,7 @@ container.addEventListener('click', async function(e) {
                 return;
             } else {
                 renderIndex();
-                changeLogButton(false);
-
+                changeLogButton(false)
             }
         } catch (error) {
             renderError('Chyba na straně serveru.');
@@ -225,12 +224,83 @@ container.addEventListener('click', async function(e) {
 
     //save new person
     if (e.target.classList.contains('btn-person-new')) {
-        
-    };
+        e.preventDefault();
+        const newData = {
+            firstName: firstName.value,
+            lastName: lastName.value,
+            birthDate: birthDate.value,
+            email: email.value,
+            mobile: mobile.value,
+            address: [ 
+                street.value,
+                streetNum.value, 
+                zipcode.value,
+                city.value,
+            ]
+        };
+        try {
+            const res = await fetch('/pojistenci/novy', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newData),
+            });
+            if (!res.ok) {
+                renderError('Data nelze načíst.')
+            } else {
+                const newObject = await res.json();
+                console.log(newObject);
+                const newObjectId = newObject._id;
+                console.log(newObjectId);
 
-    //save new insurance
+               fetchAndRender('pojistenec', `/pojistenci/${newObjectId}`, 'GET');
+            }
+        } catch (error) {
+            renderError('Chyba načtení osobního listu.');
+            console.log('error');
+        }
+  };
+
+   //save new insurance
     if (e.target.classList.contains('btn-insurance-new')) {
-
+        const data = {
+            insType: insType.value,
+            insValue: insValue.value,
+            subject: subject.value,
+            fromDate: fromDate.value,
+            toDate: toDate.value,
+            risks: risks.value,
+            notes: notes.value
+        };
+        const id = e.target.value;
+        console.log(id);
+//        const url = `/pojistenci/${id}/nove-pojisteni`;
+        try {
+            const res = await fetch(`/pojistenci/${id}/nove-pojisteni`, {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+            console.log('test 1');
+            if (!res.ok) {
+                renderError('Pojištění se nepodařilo uložit.');
+                return;
+            };
+            console.log('test 2')
+            const newData = await res.text();
+            render(newData);
+//            const newObjectId = newData._id; 
+//            const fetchResponse = await fetch(`/pojisteni/${newObjectId}`);
+//            if (fetchResponse.ok) {
+//                const updatedData = await fetchResponse.text();
+//                renderSpinner();
+//                render(updatedData);
+//            } else {
+//                renderError('Pojištění se nepodařilo zobrazit.');
+//            };
+        } catch (error) {
+            renderError('Chyba na straně serveru.');
+            console.error(error);
+        }
     };
 
     //edit person
@@ -243,13 +313,18 @@ container.addEventListener('click', async function(e) {
 
     };
 
-    //delete person
+//    //delete person -OK
     if (e.target.classList.contains('btn-person-delete')) {
-
-    };
-
-    //delete insurance
+    const id = e.target.value;
+    const url = `/pojistenci/${id}`;
+    fetchAndRender('pojistenci', url, 'DELETE');
+};
+    
+    //delete insurance -OK
     if (e.target.classList.contains('btn-insurance-delete')) {
-
+        const id = e.target.value;
+        const url = `/pojisteni/${id}`;
+        fetchAndRender('pojisteni', url, 'DELETE');
     };
+
 });
