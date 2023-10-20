@@ -44,7 +44,7 @@ const insuranceSchema = new mongoose.Schema(
         },
         personId: {
             type: mongoose.Schema.Types.ObjectId,
-            required: [true, 'Osoba je povinná.'],
+            required: false,
             ref: 'personId'
         }
     }

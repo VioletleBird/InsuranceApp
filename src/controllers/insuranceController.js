@@ -25,74 +25,85 @@ const getInsurance = async (req, res) => {
     };
 };
 
-const getInsuranceForm = async (req, res) => {
-    const { id } = req.params.id;
+//insurance form
+const getInsuranceForm = (req, res) => {
+    const { id } = req.params;
     res.render('insuranceForm', { id })
 };
 
 //make new insurance
 const newInsurance = async (req, res) => {
     const { id } = req.params;
-    console.log(req.body);
-    console.log(id);
     const { insType, subject, insValue, fromDate, toDate, risks, notes } = req.body;
 
     try {
+        const { error } = validate.validateInsurance(req.body);
+        if (error) {
+            return res.status(400).send('Neplatné údaje.');
+        }
+
         const person = await Person.findById(id);
         if (!person) { 
             return res.status(404).send('Pojištěnec nenalezen.'); 
         }
-        console.log(person);
-
-        const { error } = validate.validateInsurance(req.body);
-        if (error) {
-            return res.status(400).send('Neplatné údaje.');
-        };
 
         const newInsurance = await Insurance.create({ 
             insType, subject, insValue, fromDate, toDate, risks, notes, personId: id 
         });
-        console.log(newInsurance);
+
         person.insurances.push(newInsurance._id);
         await person.save();
-        
+
         res.json(newInsurance);
     } catch (error) {
-        res.status(500).send(error);
-        console.error(error);
+        res.status(500).send('Chyba při ukládání pojištění.');
+    }
+};
+
+//edit form for insurance
+const editInsuranceForm = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const data = await getById(id);
+        res.render('insuranceEditForm', { insurance: data })
+    } catch (error) {
+        res.status(500).send('Chyba při úpravě pojištěnce.')
     }
 };
 
 //edit insurance
-const editInsurance = async (req, res) => {
-    const { error } = validate.validateInsurance(req.body, false);
+const editInsurance = (req, res) => {
+    const { id } = req.params;
+    const { error } = validate.validateInsurance(req.body);
     if (error) {
-        res.send('Neplatné údaje.');
-        return;
+        return res.status(400).send('Neplatné údaje.');
     }
-    else {
-        await Insurance.findByIdAndUpdate(req.params.id, req.body, {new: true})
-            .then(result => { res.json(result) })
-            .catch(error => { res.send("Pojištění se nepodařilo uložit.") });
-    }   
+    else {    
+        Insurance.findByIdAndUpdate(id, req.body, { new: true })
+            .then(result => {
+                res.json(result)
+            })
+            .catch(error => {
+                res.send("Osobu se nepodařilo uložit.")
+            });
+    }
 };
 
 //delete insurance
 const deleteInsurance = async (req, res) => {
     const { id } = req.params;
-    try {
-        const insurance = await Insurance.findById(id);
-        if (!insurance) {
-            return res.status(404).send('Pojištění nenalezeno') 
-        };   
-        await insurance.deleteOne({ _id: insurance.id });
-
-        const insurances = await Insurance.find();
-        res.render('insuranceList', { insurance: insurances });
-    } 
-    catch (error) {
-        res.status(400).send('Chyba na straně serveru.')
-    }
+    await Insurance.findById(id)
+        .then(ins => {
+            if (!ins) {
+                return res.status(404).send('Pojištění nenalezeno')  
+            } else {
+                ins.deleteOne({ _id: ins.id });
+                res.json(ins)
+            }
+        })
+        .catch(error => {
+            res.status(400).send('Chyba na straně serveru.')
+        })
 };
 
 async function getById(id) {
@@ -114,6 +125,7 @@ module.exports = {
     getInsurance,
     getInsuranceForm,
     newInsurance,
+    editInsuranceForm,
     editInsurance,
     deleteInsurance,
 };

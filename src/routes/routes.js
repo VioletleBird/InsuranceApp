@@ -5,6 +5,7 @@ const {
     getAllPersons,
     getPerson,
     newPerson,
+    editPersonForm,
     editPerson,
     deletePerson
 } = require('../controllers/personController.js');
@@ -14,6 +15,7 @@ const {
     getInsurance,
     getInsuranceForm,
     newInsurance,
+    editInsuranceForm,
     editInsurance,
     deleteInsurance
 } = require('../controllers/insuranceController.js');
@@ -43,8 +45,7 @@ router.route('/pojistenci/novy')
 
 router.route('/pojistenci/:id')
     .get(getPerson)
-    .put(editPerson)
-    .delete(deletePerson)
+    .delete(deletePerson);
 
 router.route('/pojisteni')
     .get(getAllInsurance);
@@ -53,10 +54,17 @@ router.route('/pojistenci/:id/nove-pojisteni')
     .get(getInsuranceForm)
     .post(newInsurance);
 
+router.route('/pojistenci/:id/edit')
+    .get(editPersonForm)
+    .put(editPerson);
+
 router.route('/pojisteni/:id')
     .get(getInsurance)
-    .put(editInsurance)
     .delete(deleteInsurance);
+
+router.route('/pojisteni/:id/edit')
+    .get(editInsuranceForm)
+    .put(editInsurance);
 
 router.route('/user')
     .get(requireAuthHandler, getUser)

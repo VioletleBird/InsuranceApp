@@ -1,19 +1,19 @@
 <div class="card">
     <div class="card-header">
-        <img class="profile-pic" src="../public/no_profile.jpg" alt="profile picture">
+        <div class="profile-pic"></div>
         <div class="card-info">
             <h3><%= person.firstName %> <%= person.lastName %></h3>
             <h4>nar. <%= person.birthDate %></h4>
             <div class="card-contact">
-                <p><b>adresa </b><%= person.address.join(' ') %></p>
+                <p><b>adresa </b><%= person.address.join(', ') %></p>
                 <p><b>email </b><%= person.email %></p>
-                <p><b>telefon </b><%= person.phone %></p>
+                <p><b>telefon </b><%= person.mobile %></p>
             </div>
         </div>
     </div>
 </div>
 <div class="card-btns">
-    <button class="btns btn-edit btn-person-edit" value="<%= person._id %>">Upravit</button>
+    <button class="btns btn-edit btn-person-edit-form" value="<%= person._id %>">Upravit</button>
     <button class="btns btn-delete btn-person-delete" value="<%= person._id %>">Smazat</button>
 </div>
 

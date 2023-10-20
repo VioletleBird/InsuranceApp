@@ -82,7 +82,7 @@ const fetchAndRender = async function(title, url, request) {
 const renderIndex = async function() {
     await fetch('/')
         .then(res => res.text())
-        .then(historyChange('index', 'index', '/'))
+        .then(historyChange('', '', '/'))
         .then(clear())
 };
 
@@ -238,6 +238,9 @@ container.addEventListener('click', async function(e) {
                 city.value,
             ]
         };
+        const url = 'pojistenci/novy'
+        await postPutFetchAndRender(url, 'POST', newData, 'pojistenci');
+
         try {
             const res = await fetch('/pojistenci/novy', {
               method: 'POST',
@@ -248,21 +251,19 @@ container.addEventListener('click', async function(e) {
                 renderError('Data nelze načíst.')
             } else {
                 const newObject = await res.json();
-                console.log(newObject);
                 const newObjectId = newObject._id;
-                console.log(newObjectId);
 
                fetchAndRender('pojistenec', `/pojistenci/${newObjectId}`, 'GET');
             }
         } catch (error) {
             renderError('Chyba načtení osobního listu.');
-            console.log('error');
         }
   };
 
-   //save new insurance
+   //save new insurance -OK
     if (e.target.classList.contains('btn-insurance-new')) {
-        const data = {
+        e.preventDefault();
+        const newData = {
             insType: insType.value,
             insValue: insValue.value,
             subject: subject.value,
@@ -272,59 +273,146 @@ container.addEventListener('click', async function(e) {
             notes: notes.value
         };
         const id = e.target.value;
-        console.log(id);
-//        const url = `/pojistenci/${id}/nove-pojisteni`;
+        const url = `/pojistenci/${id}/nove-pojisteni`;
+
+        await postPutFetchAndRender(url, 'POST', newData, 'pojisteni');
         try {
-            const res = await fetch(`/pojistenci/${id}/nove-pojisteni`, {
+            const res = await fetch(url, {
                 method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
-            });
-            console.log('test 1');
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newData),
+                });
             if (!res.ok) {
-                renderError('Pojištění se nepodařilo uložit.');
-                return;
-            };
-            console.log('test 2')
-            const newData = await res.text();
-            render(newData);
-//            const newObjectId = newData._id; 
-//            const fetchResponse = await fetch(`/pojisteni/${newObjectId}`);
-//            if (fetchResponse.ok) {
-//                const updatedData = await fetchResponse.text();
-//                renderSpinner();
-//                render(updatedData);
-//            } else {
-//                renderError('Pojištění se nepodařilo zobrazit.');
-//            };
+                renderError('Data nelze načíst.')
+            } else {
+                console.log('client 1')
+
+                const newObject = await res.json();
+                const newObjectId = newObject._id;
+                console.log('client 2')
+
+                fetchAndRender('pojisteni', `/pojisteni/${newObjectId}`, 'GET');
+            }
         } catch (error) {
             renderError('Chyba na straně serveru.');
-            console.error(error);
         }
+    };
+
+    //edit person form -OK
+    if (e.target.classList.contains('btn-person-edit-form')) {
+        const id = e.target.value;
+        const url = `/pojistenci/${id}/edit`
+        fetchAndRender('edit', url, 'GET');
     };
 
     //edit person
     if (e.target.classList.contains('btn-person-edit')) {
+        e.preventDefault();
+        const newData = {
+            firstName: firstName.value,
+            lastName: lastName.value,
+            birthDate: birthDate.value,
+            email: email.value,
+            mobile: mobile.value,
+            address: [ 
+                street.value,
+                streetNum.value, 
+                zipcode.value,
+                city.value,
+            ]
+        };
+        const id = e.target.value;
+        const url = `/pojistenci/${id}/edit`
+        
+        await postPutFetchAndRender(url, 'PUT', newData, 'pojistenci');
+        try {
+            const res = await fetch(url, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newData),
+            });
+            if (!res.ok) {
+                renderError('Data nelze načíst.')
+            } else {
+                const newObject = await res.json();
+                const newObjectId = newObject._id;
 
+                fetchAndRender('pojistenci', `/pojistenci/${newObjectId}`, 'GET');
+            }
+        } catch (error) {
+            renderError('Chyba načtení osobního listu.');
+        }
+    };
+
+    //edit insurance form -OK
+    if (e.target.classList.contains('btn-insurance-edit-form')) {
+        const id = e.target.value;
+        const url = `/pojisteni/${id}/edit`;
+        fetchAndRender('edit', url, 'GET');
     };
 
     //edit insurance
     if (e.target.classList.contains('btn-insurance-edit')) {
+        e.preventDefault();
+        const newData = {
+            insType: insType.value,
+            insValue: insValue.value,
+            subject: subject.value,
+            fromDate: fromDate.value,
+            toDate: toDate.value,
+            risks: risks.value,
+            notes: notes.value
+        };
+        const id = e.target.value;
+        const url = `/pojisteni/${id}/edit`;
 
+        await postPutFetchAndRender(url, 'PUT', newData, 'pojisteni');
+        try {
+            const res = await fetch(url, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newData),
+                });
+            if (!res.ok) {
+                renderError('Data nelze načíst.')
+            } else {
+                const newObject = await res.json();
+                const newObjectId = newObject._id;
+
+                fetchAndRender('pojisteni', `/pojisteni/${newObjectId}`, 'GET');
+            }
+        } catch (error) {
+            renderError('Chyba na straně serveru.');
+        }
     };
 
-//    //delete person -OK
+    //delete person -OK
     if (e.target.classList.contains('btn-person-delete')) {
-    const id = e.target.value;
-    const url = `/pojistenci/${id}`;
-    fetchAndRender('pojistenci', url, 'DELETE');
-};
+        const id = e.target.value;
+        const url = `/pojistenci/${id}`;
+        try {
+            const res = await fetch(url, { method: 'DELETE' });
+            if (!res.ok) {
+                return renderError('Pojištěnce se nepodařilo smazat.');
+            };
+            fetchAndRender('pojistenci', '/pojistenci', 'GET');
+        } catch (error) {
+            renderError('Chyba na straně serveru.');
+        }
+    };
     
     //delete insurance -OK
     if (e.target.classList.contains('btn-insurance-delete')) {
         const id = e.target.value;
         const url = `/pojisteni/${id}`;
-        fetchAndRender('pojisteni', url, 'DELETE');
+        try {
+            const res = await fetch(url, { method: 'DELETE' });
+            if (!res.ok) {
+                return renderError('Pojištění se nepodařilo smazat.');
+            };
+            fetchAndRender('pojisteni', '/pojisteni', 'GET');
+        } catch (error) {
+            renderError('Chyba na straně serveru.');
+        }
     };
-
 });

@@ -41,39 +41,52 @@ const newPerson = (req, res) => {
     }
 };
 
+//edit form for person
+const editPersonForm = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const data = await getById(id);
+        res.render('personEditForm', { person: data })
+    } catch (error) {
+        res.status(500).send('Chyba při úpravě pojištěnce.')
+    }
+};
+
 //edit person
 const editPerson = (req, res) => {
-    const { error } = validate.validatePerson(req.body, false);
+    const { id } = req.params;
+    const { error } = validate.validatePerson(req.body);
     if (error) {
-        res.status(400).send('Neplatné údaje.');
-        return;
+        return res.status(400).send('Neplatné údaje.');
     }
-    else {
-        Person.findByIdAndUpdate(req.params.id, req.body, { new: true })
-            .then(result => { res.json(result) })
-            .catch(error => { res.send("Osobu se nepodařilo uložit.") });
+    else {    
+        Person.findByIdAndUpdate(id, req.body, { new: true })
+            .then(result => {
+                res.json(result)
+            })
+            .catch(error => {
+                res.send("Osobu se nepodařilo uložit.")
+            });
     }
 };
 
 //delete person
 const deletePerson = async (req, res) => {
     const { id } = req.params;
-
-    try {
-        const person = await Person.findById(id);
-        if (!person) { return res.status(404).send('Pojištěnec nenalezen') };
-
-        const insuranceIds = person.insurances;
-
-        person.deleteOne({ _id: person.id });
-        Insurance.deleteMany({ _id: { $in: insuranceIds } });
-
-        const persons = await Person.find();
-        res.render('personsList', { person: persons });
-    }
-    catch (error) {
-        res.status(500).send('Internal error.')
-    };
+    await Person.findById(id)
+        .then(person => {
+            if (!person) {
+                return res.status(404).send('Pojištěnec nenalezen')
+            } else {
+                const insuranceIds = person.insurances;
+                person.deleteOne({ _id: person.id });
+                Insurance.deleteMany({ _id: { $in: insuranceIds } });
+                res.json(person);
+            }
+        })
+        .catch(error => {
+            res.status(500).send('Internal error.')
+        })
 };
 
 async function getById(id) {
@@ -94,6 +107,7 @@ module.exports = {
     getAllPersons,
     newPerson,
     getPerson,
+    editPersonForm,
     editPerson,
     deletePerson
 };

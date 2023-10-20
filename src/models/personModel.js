@@ -27,10 +27,10 @@ const personSchema = new mongoose.Schema(
             required: false,
             ref: 'email'
         },
-        phone: {
+        mobile: {
             type: String,
             required: false,
-            ref: 'phone'
+            ref: 'mobile'
         },
         insurances: {
             type: [mongoose.Schema.Types.ObjectId],
