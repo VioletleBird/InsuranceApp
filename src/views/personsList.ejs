@@ -8,6 +8,7 @@
             <thead>
                 <tr>
                     <th>Jméno</th>
+                    <th>Příjmení</th>
                     <th>Datum narození</th>
                     <th></th>
                 </tr>
@@ -16,7 +17,8 @@
 
                 <% person.forEach(person => { %>
                     <tr>
-                        <td><%= person.firstName %> <%= person.lastName %></td>
+                        <td><%= person.firstName %></td>
+                        <td><%= person.lastName %></td>
                         <td><%= person.birthDate %></td>
                         <td>
                             <button class="btns btn-detail-sm btn-person-detail" value="<%= person._id %>">detail</button>

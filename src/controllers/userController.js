@@ -64,14 +64,13 @@ const loginUser = (req, res) => {
                     return;
                 }
             });
-            res.render('index');
+            res.json()
         })
         .catch(() => res.status(500).send('Nastala chyba při hledání uživatele'));
 };
 
 //logout user
 const logoutUser = async (req, res) => {
-    console.log('inner test 1')
     req.session.destroy((error) => {
         if (error) {
             res.status(500).send('Nastala chyba při mazání session.');

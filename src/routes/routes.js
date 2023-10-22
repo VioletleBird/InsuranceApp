@@ -36,35 +36,34 @@ router.route('/')
     .get((req, res) => { res.render('index') });
 
 router.route('/pojistenci')
-    .get(getAllPersons)
+    .get(requireAuthHandler, getAllPersons)
 
 router.route('/pojistenci/novy')
-    .get((req, res) => { res.render('personForm')})
-    .post(newPerson);
-    //...requireAdminHandlers
+    .get(requireAuthHandler, (req, res) => { res.render('personForm')})
+    .post(...requireAdminHandlers, newPerson);
 
 router.route('/pojistenci/:id')
-    .get(getPerson)
-    .delete(deletePerson);
+    .get(requireAuthHandler, getPerson)
+    .delete(...requireAdminHandlers, deletePerson);
 
 router.route('/pojisteni')
-    .get(getAllInsurance);
+    .get(requireAuthHandler, getAllInsurance);
 
 router.route('/pojistenci/:id/nove-pojisteni')
-    .get(getInsuranceForm)
-    .post(newInsurance);
+    .get(...requireAdminHandlers, getInsuranceForm)
+    .post(...requireAdminHandlers, newInsurance);
 
 router.route('/pojistenci/:id/edit')
-    .get(editPersonForm)
-    .put(editPerson);
+    .get(...requireAdminHandlers, editPersonForm)
+    .put(...requireAdminHandlers, editPerson);
 
 router.route('/pojisteni/:id')
-    .get(getInsurance)
-    .delete(deleteInsurance);
+    .get(requireAuthHandler, getInsurance)
+    .delete(...requireAdminHandlers, deleteInsurance);
 
 router.route('/pojisteni/:id/edit')
     .get(editInsuranceForm)
-    .put(editInsurance);
+    .put(...requireAdminHandlers, editInsurance);
 
 router.route('/user')
     .get(requireAuthHandler, getUser)

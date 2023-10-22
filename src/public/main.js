@@ -15,15 +15,29 @@ navToggle.addEventListener('click', function () {
 
 //login button
 const loginBtn = document.querySelector('.btn-log');
-const changeLogButton = function(status) {
+const userName = document.querySelector('.user-name');
+const changeLogButton = async function(status) {
     if (status) {
         loginBtn.innerText = 'Odhlásit se';
         loginBtn.classList.remove('btn-login-form');
         loginBtn.classList.add('btn-logout');
+        try {
+            const res = await fetch('/user', { method: 'GET' });
+            if (!res.ok) {
+                const errorData = await res.json();
+                return renderError(errorData.error);
+            } else {
+                const user = await res.json();
+                userName.innerText = user.email;
+            }
+        } catch (error) {
+            renderError('Chyba na straně serveru.');
+        }
     } else {
         loginBtn.innerText = 'Přihlásit se';
         loginBtn.classList.remove('btn-logout');
         loginBtn.classList.add('btn-login-form');
+        userName.innerText = '';
     }
 };
 
@@ -51,6 +65,22 @@ const renderError = function (message) {
     `;
     clear();
     container.insertAdjacentHTML('afterbegin', markup);
+};
+
+const notifyBar = function (message) {
+    if (!document.querySelector('.alert-box')) {
+        const alertBox = document.createElement('div');
+        alertBox.className = 'alert-box';
+        alertBox.textContent = `${message}`;
+
+        const mainElement = document.querySelector('main');
+        mainElement.parentNode.insertBefore(alertBox, mainElement);
+  
+        setTimeout(function () {
+            alertBox.style.display = 'none';
+            alertBox.remove();
+        }, 3000);
+    }
 };
 
 const getAndRender = async function(title, url) {
@@ -110,9 +140,8 @@ const handleFormSubmit = async function(e, url, method, resource) {
         } else {
             renderError('Neplatné údaje.');
         };
-
         removeEmptyProperties(newData);
-        console.log(newData);
+
     try {
         const res = await fetch(url, {
             method: `${method}`,
@@ -125,6 +154,7 @@ const handleFormSubmit = async function(e, url, method, resource) {
             const newObject = await res.json();
             const newObjectId = newObject._id;
             getAndRender(resource, `/${resource}/${newObjectId}`);
+            notifyBar('Data uložena')
         }
     } catch (error) {
         renderError('Chyba na straně serveru.');
@@ -140,6 +170,7 @@ const handleDelete = async function(e, resource) {
             return renderError('Data se nepodařilo smazat.');
         };
         getAndRender(resource, `/${resource}`);
+        notifyBar('Data vymazána')
     } catch (error) {
         renderError('Chyba na straně serveru.');
     }
@@ -182,6 +213,7 @@ const handleAuthentication = async function(e, action) {
     }
 };
 
+
 //updating url in browser
 const historyChange = function(title, url) {
     history.pushState( { page: `${title}` }, title, url );
@@ -221,7 +253,7 @@ nav.addEventListener('click', async (e) => {
                 renderIndex();
             }
         } catch (error) {
-            renderError('Chyba na straně serveru')
+            renderError('Chyba na straně serveru.')
         };
     };
 });

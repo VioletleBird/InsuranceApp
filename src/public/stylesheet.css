@@ -112,12 +112,6 @@ h3 {
     width: 4rem;
 }
 
-.spinner svg {
-    height: 3rem;
-    width: 3rem;
-    animation: rotate 2s infinite linear;
-}
-
 /* Navbar */
 
 nav {
@@ -151,24 +145,44 @@ nav {
 .nav-links li {
     background: var(--clr-primary-3);
     font-size: 1.2rem;
-    text-transform: uppercase;
     letter-spacing: var(--spacing);
     display: block;
     padding: 0.5rem 1rem;
     transition: var(--transition);
 }
 
-.nav-links li:hover {
+.nav-li:hover {
     background: var(--clr-primary-4);
     color: var(--clr-primary-1);
     padding-left: 1.5rem;
+}
+
+.nav-li {
+    text-transform: uppercase;
 }
 
 .nav-login {
     display: none;
 }
 
+.btn-log {
+    border: transparent;
+    margin-left: 1rem;
+    padding: 0.5rem;
+    font-size: 1rem;
+    color: var(--clr-primary-3);
+    background: var(--clr-primary-1);
+    border-radius: 10px;
+    transition: var(--transition);
+}
+
+.btn-log:hover {
+    background: var(--clr-primary-2);
+    color: var(--clr-primary-4);
+}
+
 /* toogle */
+
 .nav-links {
     height: 0;
     overflow: hidden;
@@ -176,7 +190,7 @@ nav {
 }
 
 .show-links {
-    height: 7.5rem;
+    height: fit-content;
 }
 
 @media screen and (min-width: 900px) {
@@ -199,11 +213,12 @@ nav {
     .nav-links {
         height: auto;
         display: flex;
+        align-items: center;
     }
 
     .nav-links li {
         padding: 0;
-        margin: 0 0.7rem;
+        margin-right: 2rem;
         background: transparent;
     }
 
@@ -213,30 +228,13 @@ nav {
         color: var(--clr-white);
     }
 
-    .nav-login {
-        display: flex;
-        align-items: center;
-    }
-
-    .nav-login li {
-        margin: 0 0.5rem;
+    .login-user-email {
         color: var(--clr-white);
         transition: var(--transition);
     }
 
-    .nav-login li button {
-        border: transparent;
-        padding: 0.5rem;
-        font-size: 1rem;
-        color: var(--clr-primary-3);
-        background: var(--clr-primary-1);
-        border-radius: 10px;
-        transition: var(--transition);
-    }
-
-    .nav-login li button:hover {
-        background: var(--clr-primary-3);
-        color: var(--clr-primary-1);
+    .login-user-email span {
+        margin-right: 1rem;
     }
 }
 
@@ -445,6 +443,27 @@ form {
     #notes {
         height: 6rem;
     }
+}
+
+/* alert box */
+
+.alert-box {
+    display: block;
+    position: absolute;
+    width: 98%;
+    max-width: 1300px;
+    font-weight: normal;
+    top: 5rem;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    background-color: var(--clr-primary-3);
+    border-color: transparent;
+    color: var(--clr-primary-1);
+    border-radius: 5px;
+    text-align: center;
 }
 
 /* footer */
