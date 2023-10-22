@@ -25,7 +25,7 @@ const {
     getUser,
     loginUser,
     logoutUser
-} = require('../controllers/userController.js')
+} = require('../controllers/userController.js');
 
 const { 
     requireAuthHandler,
@@ -35,8 +35,11 @@ const {
 router.route('/')
     .get((req, res) => { res.render('index') });
 
+router.route('/about')
+    .get((req, res) => { res.render('about') });
+
 router.route('/pojistenci')
-    .get(requireAuthHandler, getAllPersons)
+    .get(requireAuthHandler, getAllPersons);
 
 router.route('/pojistenci/novy')
     .get(requireAuthHandler, (req, res) => { res.render('personForm')})
@@ -66,7 +69,7 @@ router.route('/pojisteni/:id/edit')
     .put(...requireAdminHandlers, editInsurance);
 
 router.route('/user')
-    .get(requireAuthHandler, getUser)
+    .get(requireAuthHandler, getUser);
 
 router.route('/register')
     .get((req, res) => { res.render('registration') })

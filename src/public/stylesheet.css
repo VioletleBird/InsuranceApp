@@ -262,6 +262,17 @@ nav {
     gap: 1rem;
 }
 
+/* about */ 
+
+.about-wrapper {
+    line-height: 2rem;
+    max-width: 1000px;
+}
+
+.about-wrapper h3 {
+    margin-bottom: 2rem;
+}
+
 /*table*/
 
 table {

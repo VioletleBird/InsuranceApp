@@ -213,7 +213,6 @@ const handleAuthentication = async function(e, action) {
     }
 };
 
-
 //updating url in browser
 const historyChange = function(title, url) {
     history.pushState( { page: `${title}` }, title, url );
@@ -238,6 +237,10 @@ nav.addEventListener('click', async (e) => {
     if (e.target.classList.contains('btn-insurance-list')) {
         getAndRender('pojisteni', '/pojisteni');
     };
+    //about
+    if (e.target.classList.contains('btn-about')) {
+        getAndRender('about', '/about');
+    }
     //login form
     if (e.target.classList.contains('btn-login-form')) {
         getAndRender('login', '/login');
