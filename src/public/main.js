@@ -43,18 +43,6 @@ const render = function (data) {
     container.insertAdjacentHTML('afterbegin', data);
 };
 
-const renderSpinner = function() {
-    const markup = `
-        <div class="spinner">
-            <svg>
-                <use href="spinner-solid.svg"></use>
-            </svg>
-        </div>
-    `;
-    clear();
-    container.insertAdjacentHTML('afterbegin', markup);
-};
-
 const renderError = function (message) {
     const markup = `
         <div class="error">
@@ -65,25 +53,133 @@ const renderError = function (message) {
     container.insertAdjacentHTML('afterbegin', markup);
 };
 
-const fetchAndRender = async function(title, url, request) {
+const getAndRender = async function(title, url) {
     historyChange(title, url);
-    await fetch(url, { method: `${request}` })
+    await fetch(url, { method: 'GET' })
         .then(res => res.text())
         .then(data => {
-            renderSpinner();
             render(data);
         })
         .catch(error => {
             renderError('Data nelze načíst.')
-            console.error(error);
         })
+};
+
+const removeEmptyProperties = function(obj) {
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                removeEmptyProperties(obj[key]);
+                if (Object.keys(obj[key]).length === 0) {
+                    delete obj[key];
+                }
+            } else if (obj[key] === '') {
+                delete obj[key];
+            }
+        }
+    }
+};
+
+const handleFormSubmit = async function(e, url, method, resource) {
+    e.preventDefault();
+        let newData = {};
+        if (resource === 'pojistenci') {
+            newData = {
+                firstName: firstName.value,
+                lastName: lastName.value,
+                birthDate: birthDate.value,
+                email: email.value,
+                mobile: mobile.value,
+                address: [ 
+                    street.value,
+                    streetNum.value, 
+                    zipcode.value,
+                    city.value,
+                ]
+            };
+        } else if (resource === 'pojisteni') {
+            newData = {
+                insType: insType.value,
+                insValue: insValue.value,
+                subject: subject.value,
+                fromDate: fromDate.value,
+                toDate: toDate.value,
+                risks: risks.value,
+                notes: notes.value
+            };
+        } else {
+            renderError('Neplatné údaje.');
+        };
+
+        removeEmptyProperties(newData);
+        console.log(newData);
+    try {
+        const res = await fetch(url, {
+            method: `${method}`,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newData),
+        });
+        if (!res.ok) {
+            renderError('Neplatné údaje.')
+        } else {
+            const newObject = await res.json();
+            const newObjectId = newObject._id;
+            getAndRender(resource, `/${resource}/${newObjectId}`);
+        }
+    } catch (error) {
+        renderError('Chyba na straně serveru.');
+    }
+};
+
+const handleDelete = async function(e, resource) {
+    const id = e.target.value;
+    const url = `/${resource}/${id}`;
+    try {
+        const res = await fetch(url, { method: 'DELETE' });
+        if (!res.ok) {
+            return renderError('Data se nepodařilo smazat.');
+        };
+        getAndRender(resource, `/${resource}`);
+    } catch (error) {
+        renderError('Chyba na straně serveru.');
+    }
 };
 
 const renderIndex = async function() {
     await fetch('/')
         .then(res => res.text())
-        .then(historyChange('', '', '/'))
+        .then(() => {
+            renderSpinner();
+            historyChange('', '', '/')
+        })
         .then(clear())
+};
+
+const handleAuthentication = async function(e, action) {
+    e.preventDefault();
+    const data = {
+        email: email.value,
+        password: password.value,
+    };
+
+    try {
+        const res = await fetch(`/${action}`, { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            renderError(errorData.error);
+            return;
+        } else {
+            renderIndex();
+            changeLogButton(action === 'login')
+        }
+    } catch (error) {
+        renderError('Chyba na straně serveru.');
+    }
 };
 
 //updating url in browser
@@ -94,7 +190,7 @@ const historyChange = function(title, url) {
 //browser back and forward buttons
 window.addEventListener('popstate', function() {
     const url = window.location.pathname;
-    fetchAndRender('', url, 'GET');
+    getAndRender('', url);
 });
 
 nav.addEventListener('click', async (e) => {
@@ -102,25 +198,18 @@ nav.addEventListener('click', async (e) => {
     if (e.target.classList.contains('btn-index')) {
         renderIndex();
     };
-
     // list of persons
     if (e.target.classList.contains('btn-person-list')) {
-        const url = `/pojistenci`;
-        fetchAndRender('pojistenci', url, 'GET');
+        getAndRender('pojistenci', '/pojistenci');
     };
-
     // list of insurances
     if (e.target.classList.contains('btn-insurance-list')) {
-        const url = `/pojisteni`;
-        fetchAndRender('pojisteni' ,url, 'GET');
+        getAndRender('pojisteni', '/pojisteni');
     };
-
     //login form
     if (e.target.classList.contains('btn-login-form')) {
-        const url = `/login`;
-        fetchAndRender('login', url, 'GET');
+        getAndRender('login', '/login');
     };
-
     //logout
     if (e.target.classList.contains('btn-logout')) {
         try {
@@ -140,279 +229,62 @@ nav.addEventListener('click', async (e) => {
 container.addEventListener('click', async function(e) {
     //login
     if (e.target.classList.contains('btn-login')) {
-        e.preventDefault();
-        const data = {
-            email: email.value,
-            password: password.value,
-        };
-
-        try {
-            const res = await fetch('/login', { 
-                method: 'POST', 
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data) });
-            if (!res.ok) {
-                const errorData = await res.json();
-                renderError(errorData.error);
-                return;
-            } else {
-                renderIndex();
-                changeLogButton(true);
-            }
-        } catch (error) {
-            renderError('Chyba na straně serveru.');
-        }
+        handleAuthentication(e, 'login');
     };
-
     //register form
     if (e.target.classList.contains('btn-register-form')) {
-        const url = `/register`;
-        fetchAndRender('registrace', url, 'GET');
-        };
-
+        getAndRender('registrace', '/register');
+    };
     //register
     if (e.target.classList.contains('btn-register')) {
-        const data = {
-            email: email.value,
-            password: password.value,
-        };
-
-        try {
-            const res = await fetch('/register', { 
-                method: 'POST', 
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data) });
-            if (!res.ok) {
-                const errorData = await res.json();
-                renderError(errorData.error);
-                return;
-            } else {
-                renderIndex();
-                changeLogButton(false)
-            }
-        } catch (error) {
-            renderError('Chyba na straně serveru.');
-        }
+        handleAuthentication(e, 'register');
     };
-
     //form for adding new person
     if (e.target.classList.contains('btn-person-form')) {
-        const url = `/pojistenci/novy`;
-        fetchAndRender('novy-pojistenec', url, 'GET');
+        getAndRender('novy-pojistenec', '/pojistenci/novy');
     };
-
     //form for adding new insurance
     if (e.target.classList.contains('btn-insurance-form')) {
-        const id = e.target.value;
-        const url = `/pojistenci/${id}/nove-pojisteni`;
-        fetchAndRender('nove-pojisteni', url, 'GET');
+        getAndRender('nove-pojisteni', `/pojistenci/${e.target.value}/nove-pojisteni`);
     };
-    
     //detail of person
     if (e.target.classList.contains('btn-person-detail')) {
-        const id = e.target.value;
-        const url = `/pojistenci/${id}`;
-        fetchAndRender('pojistenec', url, 'GET');
+        getAndRender('pojistenec', `/pojistenci/${e.target.value}`);
     };
-
     //detail of insurance
     if (e.target.classList.contains('btn-insurance-detail')) {
-        const id = e.target.value;
-        const url = `/pojisteni/${id}`;
-        fetchAndRender('pojisteni', url, 'GET');
+        getAndRender('pojisteni', `/pojisteni/${e.target.value}`);
     };
-
     //save new person
     if (e.target.classList.contains('btn-person-new')) {
-        e.preventDefault();
-        const newData = {
-            firstName: firstName.value,
-            lastName: lastName.value,
-            birthDate: birthDate.value,
-            email: email.value,
-            mobile: mobile.value,
-            address: [ 
-                street.value,
-                streetNum.value, 
-                zipcode.value,
-                city.value,
-            ]
-        };
-        const url = 'pojistenci/novy'
-        await postPutFetchAndRender(url, 'POST', newData, 'pojistenci');
-
-        try {
-            const res = await fetch('/pojistenci/novy', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(newData),
-            });
-            if (!res.ok) {
-                renderError('Data nelze načíst.')
-            } else {
-                const newObject = await res.json();
-                const newObjectId = newObject._id;
-
-               fetchAndRender('pojistenec', `/pojistenci/${newObjectId}`, 'GET');
-            }
-        } catch (error) {
-            renderError('Chyba načtení osobního listu.');
-        }
-  };
-
+        handleFormSubmit(e, '/pojistenci/novy', 'POST', 'pojistenci');
+    };
    //save new insurance -OK
     if (e.target.classList.contains('btn-insurance-new')) {
-        e.preventDefault();
-        const newData = {
-            insType: insType.value,
-            insValue: insValue.value,
-            subject: subject.value,
-            fromDate: fromDate.value,
-            toDate: toDate.value,
-            risks: risks.value,
-            notes: notes.value
-        };
-        const id = e.target.value;
-        const url = `/pojistenci/${id}/nove-pojisteni`;
-
-        await postPutFetchAndRender(url, 'POST', newData, 'pojisteni');
-        try {
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newData),
-                });
-            if (!res.ok) {
-                renderError('Data nelze načíst.')
-            } else {
-                console.log('client 1')
-
-                const newObject = await res.json();
-                const newObjectId = newObject._id;
-                console.log('client 2')
-
-                fetchAndRender('pojisteni', `/pojisteni/${newObjectId}`, 'GET');
-            }
-        } catch (error) {
-            renderError('Chyba na straně serveru.');
-        }
+        handleFormSubmit(e, `/pojistenci/${e.target.value}/nove-pojisteni`, 'POST', 'pojisteni');
     };
-
     //edit person form -OK
     if (e.target.classList.contains('btn-person-edit-form')) {
-        const id = e.target.value;
-        const url = `/pojistenci/${id}/edit`
-        fetchAndRender('edit', url, 'GET');
+        getAndRender('edit', `/pojistenci/${e.target.value}/edit`);
     };
-
     //edit person
     if (e.target.classList.contains('btn-person-edit')) {
-        e.preventDefault();
-        const newData = {
-            firstName: firstName.value,
-            lastName: lastName.value,
-            birthDate: birthDate.value,
-            email: email.value,
-            mobile: mobile.value,
-            address: [ 
-                street.value,
-                streetNum.value, 
-                zipcode.value,
-                city.value,
-            ]
-        };
-        const id = e.target.value;
-        const url = `/pojistenci/${id}/edit`
-        
-        await postPutFetchAndRender(url, 'PUT', newData, 'pojistenci');
-        try {
-            const res = await fetch(url, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(newData),
-            });
-            if (!res.ok) {
-                renderError('Data nelze načíst.')
-            } else {
-                const newObject = await res.json();
-                const newObjectId = newObject._id;
-
-                fetchAndRender('pojistenci', `/pojistenci/${newObjectId}`, 'GET');
-            }
-        } catch (error) {
-            renderError('Chyba načtení osobního listu.');
-        }
+        handleFormSubmit(e, `/pojistenci/${e.target.value}/edit`, 'PUT', 'pojistenci');
     };
-
-    //edit insurance form -OK
+    //edit insurance form
     if (e.target.classList.contains('btn-insurance-edit-form')) {
-        const id = e.target.value;
-        const url = `/pojisteni/${id}/edit`;
-        fetchAndRender('edit', url, 'GET');
+        getAndRender('edit', `/pojisteni/${e.target.value}/edit`);
     };
-
     //edit insurance
     if (e.target.classList.contains('btn-insurance-edit')) {
-        e.preventDefault();
-        const newData = {
-            insType: insType.value,
-            insValue: insValue.value,
-            subject: subject.value,
-            fromDate: fromDate.value,
-            toDate: toDate.value,
-            risks: risks.value,
-            notes: notes.value
-        };
-        const id = e.target.value;
-        const url = `/pojisteni/${id}/edit`;
-
-        await postPutFetchAndRender(url, 'PUT', newData, 'pojisteni');
-        try {
-            const res = await fetch(url, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newData),
-                });
-            if (!res.ok) {
-                renderError('Data nelze načíst.')
-            } else {
-                const newObject = await res.json();
-                const newObjectId = newObject._id;
-
-                fetchAndRender('pojisteni', `/pojisteni/${newObjectId}`, 'GET');
-            }
-        } catch (error) {
-            renderError('Chyba na straně serveru.');
-        }
+        handleFormSubmit(e, `/pojisteni/${e.target.value}/edit`, 'PUT', 'pojisteni');
     };
-
     //delete person -OK
     if (e.target.classList.contains('btn-person-delete')) {
-        const id = e.target.value;
-        const url = `/pojistenci/${id}`;
-        try {
-            const res = await fetch(url, { method: 'DELETE' });
-            if (!res.ok) {
-                return renderError('Pojištěnce se nepodařilo smazat.');
-            };
-            fetchAndRender('pojistenci', '/pojistenci', 'GET');
-        } catch (error) {
-            renderError('Chyba na straně serveru.');
-        }
+        handleDelete(e, 'pojistenci')
     };
-    
     //delete insurance -OK
     if (e.target.classList.contains('btn-insurance-delete')) {
-        const id = e.target.value;
-        const url = `/pojisteni/${id}`;
-        try {
-            const res = await fetch(url, { method: 'DELETE' });
-            if (!res.ok) {
-                return renderError('Pojištění se nepodařilo smazat.');
-            };
-            fetchAndRender('pojisteni', '/pojisteni', 'GET');
-        } catch (error) {
-            renderError('Chyba na straně serveru.');
-        }
+        handleDelete(e, 'pojisteni')
     };
 });

@@ -73,20 +73,22 @@ const editPerson = (req, res) => {
 //delete person
 const deletePerson = async (req, res) => {
     const { id } = req.params;
-    await Person.findById(id)
-        .then(person => {
-            if (!person) {
-                return res.status(404).send('Pojištěnec nenalezen')
-            } else {
-                const insuranceIds = person.insurances;
-                person.deleteOne({ _id: person.id });
-                Insurance.deleteMany({ _id: { $in: insuranceIds } });
-                res.json(person);
-            }
-        })
-        .catch(error => {
-            res.status(500).send('Internal error.')
-        })
+    try {
+        const person = await Person.findById(id);
+        if(!person) {
+            return res.status(404).send('Pojištěnec nenalezen')        
+        }
+
+        const insuranceIds = person.insurances;
+
+        await  Promise.all([
+            person.deleteOne(),
+            Insurance.deleteMany({ _id: { $in: insuranceIds } })
+        ]);
+        res.json(person);
+    } catch (error) {
+        res.status(500).send('Chyba při mazání pojištěnce.')
+    }
 };
 
 async function getById(id) {

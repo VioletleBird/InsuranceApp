@@ -50,7 +50,6 @@ const newInsurance = async (req, res) => {
         const newInsurance = await Insurance.create({ 
             insType, subject, insValue, fromDate, toDate, risks, notes, personId: id 
         });
-
         person.insurances.push(newInsurance._id);
         await person.save();
 
